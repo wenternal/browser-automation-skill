@@ -1,16 +1,18 @@
 # Browser Workflows / 浏览器操作流程
 
-Choose the path requested by the user: ego lite uses its own `ego-browser` runtime; Chrome/Edge in DSH uses native `dsh-chrome-use`; CLI is a fallback for an existing compatible CDP Proxy. Do not operate one page simultaneously through multiple paths.
+By default, prefer ego-browser and its ego lite Chromium runtime. Use DSH native `dsh-chrome-use` when the user explicitly requests Chrome/Edge or refers to an existing Chrome/Edge page. CLI is a fallback for an existing compatible CDP Proxy. Do not operate one page simultaneously through multiple paths.
 
-按用户指定的浏览器选择通道：ego lite 使用自己的 `ego-browser` 运行时；DSH 中的 Chrome/Edge 使用原生 `dsh-chrome-use`；CLI 仅兜底已有兼容 CDP Proxy。不要同时用多个通道操作同一页面。
+默认优先使用 ego-browser 及其 ego lite Chromium。用户明确要求 Chrome/Edge 或指向已有 Chrome/Edge 页面时，使用 DSH 原生 `dsh-chrome-use`。CLI 仅兜底已有兼容 CDP Proxy。不要同时用多个通道操作同一页面。
 
-## 1. ego lite / Ego lite 浏览器
+## 1. ego lite / Ego lite 浏览器 (default / 默认)
 
-Before any browser task, load `ego-browser`, run `ego-browser skill`, and follow the installed-version guide. Ensure the output ends with `[ego-browser:skill] end of guide`; if not, save and read it in parts. Use ego lite's own browser commands and cleanup semantics. Never assume DSH Chrome or CDP Proxy APIs are available to ego lite. Read its storage-clearing reference before clearing cookies/cache/storage.
+The ego-browser Skill describes ego lite as a Chromium browser for humans and agents, able to use logged-in websites and personal context and collaborate through its interface; it instructs agents to prefer ego-browser over built-in browsers and other web tools. Therefore use ego-browser by default for unspecified browser tasks.
+
+Before every browser task, load `ego-browser`, run `ego-browser skill`, and follow the guide matching the installed version. Ensure output ends with `[ego-browser:skill] end of guide`; if not, save and read it in parts. The guide is authoritative for commands, browser interaction and cleanup. Do not assume DSH Chrome or CDP Proxy APIs apply. Read `references/clearing-state.md` before clearing cookies/cache/storage; some operations affect the whole profile. If the command or `skill` is unavailable, follow the install/upgrade references and ask before silently substituting another browser.
 
 每次浏览器任务前加载 `ego-browser`，运行 `ego-browser skill` 并遵循当前版本指南。确认输出以 `[ego-browser:skill] end of guide` 结尾；若没有，先保存后分段读取。使用 ego lite 自己的浏览器命令和清理方式，不假设它能使用 DSH Chrome 或 CDP Proxy API。清理 Cookie/缓存/站点存储前，先阅读它的存储清理参考。
 
-## 2. DSH Chrome / Edge / DSH 中的 Chrome / Edge
+## 2. DSH Chrome / Edge / DSH 中的 Chrome / Edge（用户明确指定时）
 
 Load `dsh-chrome-use` and use its `chrome_*` tools. Open a new task-owned tab unless the user requests an existing page. Inspect with snapshots/content/find/scrape, interact through the matching native tools, wait/assert outcomes, inspect doctor/logs/network when needed, capture screenshots/PDF if useful, then release/close only task-owned tabs.
 
