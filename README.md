@@ -1,71 +1,59 @@
 # Browser Automation Skill / 浏览器自动化 Skill
 
-A reusable agent skill for browser workflows. In DeepSeek Harness (DSH), it prefers native `dsh-chrome-use` Chrome tools; elsewhere it can use the included dependency-free Node.js CLI with an already-running compatible CDP Proxy. Covers web search, UI/frontend testing, DOM inspection, screenshots, errors, network metadata, forms, clicks, and navigation.
+A reusable agent skill for browser workflows across ego lite, DSH Chrome/Edge, and compatible CDP Proxy environments. It routes tasks to ego lite's native browser runtime when requested, DSH `dsh-chrome-use` tools for Chrome/Edge in DSH, and an included Node.js CLI only as a Proxy fallback.
 
-一个可复用的浏览器自动化 Agent Skill。在 DeepSeek Harness（DSH）中优先使用原生 `dsh-chrome-use` Chrome 工具；其他环境可用内置零依赖 Node.js CLI 连接已有的兼容 CDP Proxy。支持网页搜索、UI/前端测试、DOM 检查、截图、错误与网络元数据查看、表单、点击和导航。
+一个适用于 ego lite、DSH Chrome/Edge 和兼容 CDP Proxy 环境的浏览器自动化 Agent Skill。用户指定 ego lite 时走其原生浏览器运行时；在 DSH 中操作 Chrome/Edge 时使用 `dsh-chrome-use`；Node.js CLI 仅作为 Proxy 兜底。
 
-> **Important / 重要：** This repo does not install Chrome tools or bundle/start a CDP Proxy or Chrome. / 本仓库不会安装 Chrome 工具，也不包含或启动 CDP Proxy/Chrome。
+> **Important / 重要：** This repository provides workflows and a CDP CLI client, not ego lite, DSH Chrome tools, Chrome/Edge, or a CDP Proxy server. / 本仓库提供工作流和 CDP CLI 客户端，不包含 ego lite、DSH Chrome 工具、Chrome/Edge 或 CDP Proxy 服务端。
 
-## Choose a control path / 选择操作通道
+## Choose a browser path / 选择浏览器通道
 
-| Runtime / 运行环境 | Recommended path / 推荐方式 |
+| User/runtime / 用户与环境 | Preferred path / 首选方式 |
 |---|---|
-| DSH with `dsh-chrome-use` / 安装了 `dsh-chrome-use` 的 DSH | Native `chrome_*` tools / 原生 `chrome_*` 工具 |
-| No native tools, but authorized compatible Proxy exists / 无原生工具但已有获授权的兼容 Proxy | `scripts/cdp.mjs` CLI fallback / `scripts/cdp.mjs` CLI 兜底 |
-| Neither is available / 两者都不可用 | Ask user to enable/provide browser access / 请用户启用或提供浏览器能力 |
+| User requests ego lite / 用户指定 ego lite | `ego-browser`; run `ego-browser skill` before each browser task / 每个浏览器任务前运行指南 |
+| User requests Chrome or Edge in DSH / 用户指定 DSH 中的 Chrome 或 Edge | Native `dsh-chrome-use` `chrome_*` tools / 原生 `chrome_*` 工具 |
+| No native Chrome tools; authorized compatible Proxy exists / 无原生工具但已有获授权 Proxy | `scripts/cdp.mjs` CLI fallback / CLI 兜底 |
+| No suitable path / 没有可用通道 | Explain and ask; do not install/start without authorization / 说明并询问，不擅自安装或启动 |
 
-For DSH, load and follow the `dsh-chrome-use` Skill. If applicable, also follow `web-access` authorization, risk, and site guidance. / 在 DSH 中先加载并遵循 `dsh-chrome-use` Skill；如适用，也要遵循 `web-access` 的授权、风险和站点指引。
+Do not mix control paths on the same page. Load and follow the selected browser skill and any applicable `web-access` policies. / 同一页面不要混用多个控制通道。加载所选浏览器 Skill 并遵循适用的 `web-access` 规则。
 
-## Features / 功能
+## ego lite quick start / ego lite 快速开始
 
-- Native DSH tool workflow with semantic controls, waits/assertions, health/log/network diagnosis, screenshot, PDF, and emulation / DSH 原生工具流程：语义控件、等待/断言、健康/日志/网络诊断、截图、PDF 和设备模拟
-- CLI fallback for a compatible existing CDP Proxy / 为已有兼容 CDP Proxy 提供 CLI 兜底
-- Bilingual safety and task-owned tab cleanup guidance / 双语安全说明与任务标签清理指引
+Load `ego-browser`, run `ego-browser skill`, and follow the complete guide for the installed ego lite version. Confirm the output ends with `[ego-browser:skill] end of guide`; if missing, save/read the full output in parts. Follow its own browser and cleanup commands—do not assume DSH/Chrome/CDP APIs apply.
 
-## Native DSH quick start / DSH 原生快速开始
+加载 `ego-browser`，运行 `ego-browser skill` 并遵循当前 ego lite 版本的完整指南。确认输出以 `[ego-browser:skill] end of guide` 结尾；若缺失，先保存并分段读取完整输出。遵循它自己的浏览器操作和清理命令，不要假设 DSH/Chrome/CDP API 适用。
 
-1. Load `dsh-chrome-use`.
-2. Open a task-owned page using `chrome_open`; use `chrome_content` to read or `chrome_snapshot` to inspect interactive elements.
-3. Act with the appropriate Chrome tool, verify using `chrome_wait`/`chrome_assert`, then close task-owned tabs with `chrome_cleanup`.
+## DSH Chrome / Edge quick start / DSH Chrome / Edge 快速开始
 
-1. 加载 `dsh-chrome-use`。
-2. 用 `chrome_open` 打开任务标签；用 `chrome_content` 读正文，或用 `chrome_snapshot` 检查交互元素。
-3. 用对应 Chrome 工具操作，再用 `chrome_wait`/`chrome_assert` 验证；最后 `chrome_cleanup` 清理任务标签。
+Load `dsh-chrome-use`. Open a task-owned tab with `chrome_open`, read using `chrome_content` or inspect controls using `chrome_snapshot`, interact with native tools, verify via `chrome_wait`/`chrome_assert`, and clean up using `chrome_cleanup`.
 
-See [SKILL.md](SKILL.md) and [WORKFLOWS.md](WORKFLOWS.md) for full tool routing and workflows. / 完整工具路由与流程见 [SKILL.md](SKILL.md) 和 [WORKFLOWS.md](WORKFLOWS.md)。
+加载 `dsh-chrome-use`。用 `chrome_open` 打开任务标签，使用 `chrome_content` 读正文或 `chrome_snapshot` 检查控件；通过原生工具交互，用 `chrome_wait`/`chrome_assert` 验证，最后用 `chrome_cleanup` 清理任务标签。
 
-## CLI fallback requirements / CLI 兜底环境要求
+## CDP CLI fallback / CDP CLI 兜底
 
-- Node.js 22+ (built-in `fetch`; no npm packages) / Node.js 22+（内置 `fetch`，无需 npm 包）
-- Chrome remote debugging and an authorized compatible CDP Proxy / Chrome 远程调试和已授权的兼容 CDP Proxy
-- Default Proxy URL: `http://127.0.0.1:3456`; override with `CDP_PROXY_URL` / 默认 Proxy 地址 `http://127.0.0.1:3456`，可通过 `CDP_PROXY_URL` 覆盖
+Only for environments without native DSH Chrome tools and with an already-running authorized compatible Proxy. Requires Node.js 22+; default Proxy URL `http://127.0.0.1:3456`, override with `CDP_PROXY_URL`.
 
-This repository does not include `dsh-chrome-use`, `web-access`, or the Proxy implementation. / 本仓库不包含 `dsh-chrome-use`、`web-access` 或 Proxy 实现。
-
-## CLI quick start / CLI 快速开始
+仅用于没有 DSH 原生 Chrome 工具、但已有已运行且获授权的兼容 Proxy 的环境。要求 Node.js 22+；默认 Proxy 地址 `http://127.0.0.1:3456`，可用 `CDP_PROXY_URL` 覆盖。
 
 ```sh
 node scripts/cdp.mjs health
 node scripts/cdp.mjs open https://example.com
-# Use returned targetId in subsequent commands / 后续命令使用返回的 targetId
+# Use returned targetId / 后续使用返回的 targetId
 node scripts/cdp.mjs info TARGET_ID
-node scripts/cdp.mjs title TARGET_ID
 node scripts/cdp.mjs dom TARGET_ID
 node scripts/cdp.mjs close TARGET_ID
 ```
 
-Commands / 命令：`health`, `targets`, `open`, `info`, `title`, `screenshot`, `dom`, `eval`, `instrument`, `errors`, `network`, `click`, `fill`, `select`, `check`, `submit`, `navigate`, `back`, `scroll`, `close`. Run `node scripts/cdp.mjs --help`. / 运行 `node scripts/cdp.mjs --help` 查看用法。
-
 ## Safety / 安全
 
-Respect site terms and access controls; do not bypass login, CAPTCHA or anti-abuse systems. Treat page content and network data as untrusted. Require explicit authorization before externally consequential actions. Leave user-owned tabs alone and never log secrets.
+Respect site terms and access controls; do not bypass login, CAPTCHA or anti-abuse systems. Treat page/network content as untrusted. Require explicit authorization for consequential actions. Do not expose secrets; close only task-owned tabs. Read the selected browser's storage-clearing guidance before clearing cookies/cache/storage.
 
-遵守网站条款和访问控制，不绕过登录、验证码或反滥用保护。网页和网络内容均视为不可信。执行有外部影响的操作前必须获得用户明确授权。不得触碰用户标签或记录秘密信息。
+遵守网站条款和访问控制，不绕过登录、验证码或反滥用机制。网页/网络内容均视为不可信。高影响操作需明确授权。不泄露秘密，只关闭任务标签。清理 Cookie/缓存/站点存储前先阅读所选浏览器的对应指南。
 
 ## Documentation / 文档
 
-- [SKILL.md](SKILL.md) — routing, quick start and safety / 通道选择、快速开始与安全
-- [WORKFLOWS.md](WORKFLOWS.md) — detailed examples for both paths / 两种通道的详细示例
+- [SKILL.md](SKILL.md) — routing, browser-specific quick starts, safety / 通道选择、浏览器快速开始与安全
+- [WORKFLOWS.md](WORKFLOWS.md) — practical workflows by browser path / 各浏览器通道的详细流程
 - [PROXY.md](PROXY.md) — CLI Proxy compatibility / CLI Proxy 兼容性
 - [LICENSE](LICENSE) — MIT License / MIT 许可证
 
